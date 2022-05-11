@@ -6,8 +6,8 @@ import { serviceForm } from './ServiceForm';
 
 const JobDataEntryPage = (): React.ReactElement => {
 
-	React.useMemo(() => useJobDataEntry(serviceForm), [serviceForm]);
-
+	const { formMethods } = useJobDataEntry(serviceForm);
+	
   return <span>JobDataEntryPage</span>;
 };
 
