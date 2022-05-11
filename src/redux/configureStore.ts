@@ -1,6 +1,10 @@
 import { configureStore, combineReducers } from '@reduxjs/toolkit';
 
-const reducer = combineReducers({});
+import jobDataEntry from './features/jobDataEntry';
+
+const reducer = combineReducers({
+	jobDataEntry,
+});
 
 const store = configureStore({
 	reducer,
