@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { number } from "yup";
 
 import { Summary } from '../../JobDataEntry/SharedTypes';
 
@@ -19,6 +20,20 @@ const jobDataEntrySlice = createSlice({
 		}
 	}
 })
+
+export interface HeaderContent {
+	companyName: string;
+	vin: string;
+}
+
+export const selectHeaderContent = (state: any): HeaderContent => {
+	const { companyName, vin } = state.jobDataEntry.summary;
+
+	return { 
+		companyName,
+		vin
+	}
+} 
 
 export const { setSummary } = jobDataEntrySlice.actions;
 export default jobDataEntrySlice.reducer;
