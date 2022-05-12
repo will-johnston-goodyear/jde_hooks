@@ -6,7 +6,6 @@ import { Summary } from '../../JobDataEntry/SharedTypes';
 
 interface JDEState {
 	summary: Partial<Summary> | null;
-
 }
 
 const initialState : JDEState = { summary : null };
