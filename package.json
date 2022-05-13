@@ -15,6 +15,7 @@
     "yup": "0.32.11"
   },
   "devDependencies": {
+    "@testing-library/react": "^13.2.0",
     "@types/react": "^17.0.20",
     "@types/react-dom": "^17.0.16",
     "@types/styled-components": "^5.1.25",
