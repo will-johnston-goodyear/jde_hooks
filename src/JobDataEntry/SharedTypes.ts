@@ -388,3 +388,13 @@ export enum InputTypesEnum {
 }
 
 export type InputTypes = InputTypesEnum.TEXT;   
+
+export type JDEElement = Step | JDEJob | JDETask | JDEQuestion | JDEOption;
+
+export enum JDEElementIndexPropertiesEnum {
+	STEP = "steps",
+	JDEJOB = "jobs",
+	JDETask = "tasks",
+	JDEQuestion = "questions",
+	JDEOption = "options",
+}
