@@ -11,17 +11,14 @@ type Props = {
 
 const Input = ({ id, placeholder }: Props) => {
 
-	const { register, getValues, setValue } = useFormContext();
+	const { register, getValues } = useFormContext();
 
 	const inputValue = getValues(id);
 
-	const inputs = {
-		//@ts-ignore
-		[InputTypesEnum.TEXT]: <StyledInput type="text" {...register(id)} value={inputValue} placeholder={placeholder} onChange={(event : React.FormEvent<HTMLInputElement>) => setValue(id, event.target.value)}/>,
-	}
 	return (
-		<InputWrapper>{inputs[InputTypesEnum.TEXT ]}</InputWrapper>
+		//@ts-ignore
+		<StyledInput type="text" {...register(id)} />
 	)
 }
 
-export default Input
+export default Input;
