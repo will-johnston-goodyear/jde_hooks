@@ -20,8 +20,9 @@ const JobDataEntryPage = (): React.ReactElement => {
 		<FormProvider {...formMethods}>
 			<JDEHeader />
 			<form>
-				{steps.map((step: Step) => <JDEStep step={step} />)}
+				{steps.map((step: Step) => <JDEStep step={step} key={`step-${step.id}`}/>)}
 			</form>
+			<button onClick={() => console.log(formMethods.getValues())}>See Values</button>
 		</FormProvider>
 	)
 };

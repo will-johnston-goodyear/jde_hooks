@@ -3,7 +3,8 @@ import * as React from 'react';
 
 // Local Imports
 import {JDEJobWrapper} from './JDEJob.style';
-import { JDEJob as JDEJobType } from '../SharedTypes'
+import { JDEJob as JDEJobType, JDETask as JDETaskType } from '../SharedTypes'
+import { JDETask } from '../JDETask/JDETask'
 
 interface Props {
 	job: JDEJobType
@@ -12,11 +13,12 @@ interface Props {
 // eslint-disable-next-line no-empty-pattern
 export const JDEJob = ({job}: Props) => {
 
-const { tasks } = job;
+const { tasks, id } = job;
 
 return (
 <JDEJobWrapper>
-	<span>JOB Layer</span>
+	<h3>JOB Layer</h3>
+		{tasks.map((task: JDETaskType) => <JDETask task={task} key={`task-${task.id}`}/>)}
 </JDEJobWrapper>
 )
 }

@@ -18,8 +18,9 @@ const { name : stepName, jobs } = step;
 	return (
 <JDEStepWrapper>
 	<StepHeader>
+		<h2>STEP LAYER</h2>
 		<h2>{stepName}</h2>			
-				{jobs.map((job: JDEJobType) => <JDEJob job={job} />)}
+				{jobs.map((job: JDEJobType) => <JDEJob job={job} key={`job-${job.id}`} />)}
 	</StepHeader>
 </JDEStepWrapper>
 )

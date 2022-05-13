@@ -4,7 +4,10 @@ import styled from 'styled-components';
 import { CenterFlexDiv } from '../../LayoutComponents.style'
 
 export const JDEJobWrapper = styled(CenterFlexDiv)`
-	background-color: lightpink;
-	width: 100%;
-	margin: 0 0 0 5%;
+ 	width: 100%;
+	padding: 5px;
+	flex-direction: column;
+	align-items: flex-start;
+	background-color: lightgrey;
+	color: black;
 `;

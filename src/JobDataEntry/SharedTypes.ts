@@ -382,3 +382,9 @@ export interface Form {
   additionalWorkComments?: string | null;
   groups?: GroupSummary[];
 }
+
+export enum InputTypesEnum {
+	TEXT = 'text',
+}
+
+export type InputTypes = InputTypesEnum.TEXT;   
