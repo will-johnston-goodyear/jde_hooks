@@ -1,7 +1,7 @@
-import { getFlatJDEElement, getConditionalElements } from "./JDEUtils";
+import { getFlatJDEElement, getConditionalElements, isVehicleDetailsContingencyFulfilled, areMakeModelYearsMatched } from "./JDEUtils";
 
 import { serviceForm }  from './ServiceForm';
-import { Step, JDEJob, JobCTQuestion, JDEElementIndexPropertiesEnum, JDETask, JDEQuestion, JDEOption } from "./SharedTypes";
+import { Step, JDEJob, JobCTQuestion, JDEElementIndexPropertiesEnum, JDETask, JDEQuestion, JDEOption, CTSystemDetail, ArtificialCTSystemDetail, ConditionalJobActionEnum, DriveTypeEnum, MakeModelYear } from "./SharedTypes";
 
 describe('getFlatJDEElement tests', () => {
 	it('Should return the correctly flattened elements, get jobs from steps', () => {
@@ -49,17 +49,16 @@ describe('getFlatJDEElement tests', () => {
 });
 
 describe('getConditionalElements tests', () => {
-
-	it('Should return the correct vehicle details contingent jobs', () => {
-	const { steps } = serviceForm;
-		const correctConditionalElements = [...steps[2].jobs];
-		const jobs = getFlatJDEElement<Step, JDEJob>(steps, JDEElementIndexPropertiesEnum.JDEJOB);
-		console.log(correctConditionalElements)
-		console.log(jobs)
-		// console.log(getConditionalElements(jobs))
-		// expect(getConditionalElements(jobs)).toEqual(correctConditionalElements);
-	})
-
+	/* 
+		Contingencies Types Checked 
+		[X] - `renderedByQuestions`
+		[X] - `renderedByVehicleDetails`
+		[X] - `renderedByVehicleDetailsArtificial`
+		[X] - `renderedByOptionIds` 
+		[X] - `renderedByMin` 
+		[X] - `renderedByMax`
+		[X] - `renderedByDriveTypes` 
+	*/
 	it('Should return the correct questions contingent jobs', () => {
 		const { steps } = serviceForm;
 
@@ -84,7 +83,162 @@ describe('getConditionalElements tests', () => {
 		}
 
 		const correctContingentElements = [...updatedStep.jobs];
-		const jobs = getFlatJDEElement<Step, JDEJob>([updatedStep],JDEElementIndexPropertiesEnum.JDEJOB);
+		const jobs = getFlatJDEElement<Step, JDEJob>([updatedStep], JDEElementIndexPropertiesEnum.JDEJOB);
 		expect(getConditionalElements(jobs)).toEqual(correctContingentElements);
+	});
+
+	it('Should return the correct vehicle details contingent jobs', () => {
+		const { steps } = serviceForm;
+		const correctContingentElements = [...steps[2].jobs];
+		const jobs = getFlatJDEElement<Step, JDEJob>(steps, JDEElementIndexPropertiesEnum.JDEJOB);
+		expect(getConditionalElements(jobs)).toEqual(correctContingentElements);
+	});
+
+	it('Should return the correct artificial details contingnet jobs', () => {
+		const { steps } = serviceForm;
+		
+		const artificialVehicleDetailsContingency: ArtificialCTSystemDetail = {
+			id: "1",
+			orderIdx: 2,
+			companyId: null,
+			makeModelYear: null,
+			driveType: null,
+			mileageMinValue: null,
+			mileageMaxValue: null,
+			isRotational: null,
+			tireSizes: null,
+			vehiclePowertrain: null,
+			vehicleStatuses: null,
+			conditionalJobAction: ConditionalJobActionEnum.SHOW_ALL,
+			tirePsis: ["33"],
+			grooveCounts: ["3"],
+			wheelTorques: ["4"],
+		}
+		
+		const updatedJob: JDEJob = {
+			...steps[0].jobs[0],
+			renderedByVehicleDetailsArtificial: [artificialVehicleDetailsContingency]
+		}
+
+		const updatedStep = {
+			...steps[0],
+			jobs: [updatedJob]
+		}
+
+		const correctContingentElements = [...updatedStep.jobs];
+		const jobs = getFlatJDEElement<Step, JDEJob>([updatedStep,steps[0]], JDEElementIndexPropertiesEnum.JDEJOB);
+		expect(getConditionalElements(jobs)).toEqual(correctContingentElements)
+	});
+
+	it('Should return the correct option ids contingent questions', () => {
+		const { steps } = serviceForm;
+		const questions = steps[0].jobs[0].tasks[0].questions;
+
+		const updatedQuestion: JDEQuestion = {
+			...questions[0],
+			renderedByOptionIds: ['001']
+		};
+
+		const updatedQuestions = [
+			updatedQuestion,
+			updatedQuestion,
+			...questions
+		];
+
+		expect(getConditionalElements(updatedQuestions)).toEqual([updatedQuestion, updatedQuestion]);
+	});
+
+	it('Should return the correct rendered by max contingent questions', () => {
+		const { steps } = serviceForm;
+		const questions = steps[0].jobs[0].tasks[0].questions;
+
+		const updatedQuestion: JDEQuestion = {
+			...questions[0],
+			renderedByMax: 22
+		};
+
+		const updatedQuestions = [
+			updatedQuestion,
+			updatedQuestion,
+			...questions
+		];
+
+		expect(getConditionalElements(updatedQuestions)).toEqual([updatedQuestion, updatedQuestion]);
+	});
+
+	it('Should return the correct rendered by min contingent questions', () => {
+		const { steps } = serviceForm;
+		const questions = steps[0].jobs[0].tasks[0].questions;
+
+		const updatedQuestion: JDEQuestion = {
+			...questions[0],
+			renderedByMin: 22
+		};
+
+		const updatedQuestions = [
+			updatedQuestion,
+			updatedQuestion,
+			...questions
+		];
+
+		expect(getConditionalElements(updatedQuestions)).toEqual([updatedQuestion, updatedQuestion]);
+	});
+
+	it('Should return the correct rendered by drive types contingent tasks', () => {
+		const { steps } = serviceForm;
+		const tasks = steps[0].jobs[0].tasks;
+
+		const updatedTask: JDETask = {
+			...tasks[0],
+			renderedByDriveTypes: [DriveTypeEnum.AWD],
+		};
+
+		const nonContingentTask : JDETask = {
+			...tasks[0],
+			renderedByDriveTypes: null,
+			renderedByOptionId: null,
+			renderedByQuestions: null,
+			renderedByVehicleDetails: null,
+			renderedByVehicleDetailsArtificial: null,
+		}
+
+		const updatedTasks = [
+			updatedTask,
+			updatedTask,
+			nonContingentTask,
+		];
+
+		expect(getConditionalElements(updatedTasks)).toEqual([updatedTask, updatedTask]);
+	});
+
+})
+
+describe('areMakeModelYearsMatches', () => {
+	it('Should return true', () => {
+		const makeModelYearConditions: MakeModelYear[] = [
+			{
+				make: 'Tesla',
+				model: 'Model Y',
+				year: 2022
+			}
+		]
+
+		const summaryMakeModelYears: MakeModelYear = {
+			make: 'Tesla',
+			model: 'Model Y',
+			year: 2022
+		}
+
+		expect(areMakeModelYearsMatched(makeModelYearConditions, summaryMakeModelYears)).toBe(true);
+	})
+})
+
+describe('isVehicleDetailsContingencyFulfilled tests', () => {
+
+	it.skip('Should return true', () => {
+		
+		const [ctSystemDetail] = serviceForm.steps[2].jobs[0].renderedByVehicleDetails ?? [];
+		
+		console.log(isVehicleDetailsContingencyFulfilled(ctSystemDetail, serviceForm.summary));
 	})
 })

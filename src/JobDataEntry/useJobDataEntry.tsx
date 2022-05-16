@@ -21,7 +21,6 @@ const useJobDataEntry = (serviceForm : Form) => {
 		setFlatJobs(getFlatJDEElement(steps, JDEElementIndexPropertiesEnum.JDEJOB))
 	},[serviceForm])
 
-
 	const formMethods = useForm<any>({
 		mode: 'onChange',
 	});

@@ -11,7 +11,6 @@ import { JDEStep } from "./JDEStep/JDEStep";
 import { Step } from "./SharedTypes";
 
 const JobDataEntryPage = (): React.ReactElement => {
-
 	const { formMethods } = useJobDataEntry(serviceForm);
 
 	const { steps } = serviceForm;
