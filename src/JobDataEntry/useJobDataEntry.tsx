@@ -31,7 +31,6 @@ const useJobDataEntry = (serviceForm : Form) => {
 		formMethods,
 		shownStep
 	}
-
 }
 
 export default useJobDataEntry;

@@ -137,6 +137,10 @@ export interface Alert {
 
 export type AcceptedValues = string | number | boolean;
 
+export interface AnomalyCheck {
+	maxValue: number | null,
+	minValue: number | null,
+}
 export interface JDEQuestion {
   id: string;
   label: string;
@@ -164,7 +168,7 @@ export interface JDEQuestion {
   isVerifiable?: boolean | null;
   assumedValue?: AcceptedValues;
   requiredCVDFields?: string[];
-  anomalyCheck: null;
+  anomalyCheck: AnomalyCheck | null;
 }
 
 export interface JobCTQuestion extends JDEQuestion {
@@ -357,7 +361,7 @@ export interface Summary {
   serviceId: string;
   serviceLocation: string;
   serviceName: string;
-  additionalComments: string;
+  additionalComments: string | null;
   serviceIsStandard: boolean;
   serviceTagLabel?: string | null;
   driveType: DriveType;
@@ -370,7 +374,7 @@ export interface Summary {
   vehiclePowertrain: VehiclePowertrain;
   wheelTorqueFtplbs: string;
   grooveCount: number;
-  oilSpecification: string;
+  oilSpecification: string | null;
   fuelType: FuelType | null;
   vehicleStatus: VehicleStatus;
 }

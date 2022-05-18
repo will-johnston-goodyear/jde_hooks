@@ -1,6 +1,7 @@
 import { getFlatJDEElement, getConditionalElements, isVehicleDetailsContingencyFulfilled, areMakeModelYearsMatched, isMileageValueMatched, doTireSizesMatch } from "./JDEUtils";
 
 import { serviceForm }  from './ServiceForm';
+import { VehicleDetailsContingentJobServiceForm } from './MockServiceForms/VehicleDetailsContingentJob_ServiceForm'
 import { Step, JDEJob, JobCTQuestion, JDEElementIndexPropertiesEnum, JDETask, JDEQuestion, JDEOption, CTSystemDetail, ArtificialCTSystemDetail, ConditionalJobActionEnum, DriveTypeEnum, MakeModelYear, Summary, VehiclePowertrainEnum, VehicleStatusEnum } from "./SharedTypes";
 
 describe('getFlatJDEElement tests', () => {
@@ -655,5 +656,11 @@ describe('isVehicleDetailsContingencyFulfilled tests', () => {
 		}
 
 		expect(isVehicleDetailsContingencyFulfilled(updatedCtSystemDetail, updatedSummary)).toBe(false);	
+	})
+})
+
+describe('getShownJobs tests', () => {
+	it('Should return all non-contingent jobs', () => {
+		console.log(VehicleDetailsContingentJobServiceForm);
 	})
 })
