@@ -1,4 +1,5 @@
-import { CTSystemDetail, JDEElementIndexPropertiesEnum, MakeModelYear, Summary } from "./SharedTypes";
+import { isEqual } from 'lodash';
+import { CTSystemDetail, DriveType, JDEElementIndexPropertiesEnum, MakeModelYear, Summary, VehiclePowertrain, VehicleStatus } from "./SharedTypes";
 
 /**
  * Accepts a flat JDEElement array and returns a flat array of their JDEElement child
@@ -38,23 +39,69 @@ export const getConditionalElements = <T extends { [key: string]: any }>(jdeElem
  * @returns {boolean}
  */
 export const areMakeModelYearsMatched = (makeModelYearConditions: MakeModelYear[], summaryMakeModelYear: MakeModelYear) => {
-	console.log(makeModelYearConditions[0], summaryMakeModelYear)
-	return makeModelYearConditions.some((makeModelYearCondition: MakeModelYear) => makeModelYearCondition === summaryMakeModelYear);
+	return makeModelYearConditions.some((makeModelYearCondition: MakeModelYear) => isEqual(makeModelYearCondition,summaryMakeModelYear));
+}
+
+/**
+ * Checks that a value is above or below mileageMinValue or mileageMaxValue
+ * 
+ * @param {"mileageMinValue" | "mileageMaxValue"}conditionalKey 
+ * @param { number }conditionalValue 
+ * @param { number | null | undefined} summaryValue 
+ * @returns { boolean }
+ */
+export const isMileageValueMatched = (conditionalKey: "mileageMinValue" | "mileageMaxValue", conditionalValue: number, summaryValue: number | null | undefined = 0): boolean => {
+	switch (conditionalKey) {
+		/** This is the maximum value that summary can be and still be true */
+		case 'mileageMaxValue':
+			return conditionalValue >= (summaryValue ?? 0);
+		/** This is the minimum value that summary can be and still be true */
+		case 'mileageMinValue':
+			return (summaryValue ?? 0) <= conditionalValue;
+		default:
+			return true;
+	}
+}
+
+/**
+ *	Checks if any tire sizes match betwen a list of tire size conditions 
+ *	and the known front and rear tires sizes for a vehicle 
+ *
+ * @param {string[]}condtitionalTireSizes 
+ * @param {[string, string]}summaryTireSizes 
+ * @returns {boolean}
+ */
+export const doTireSizesMatch = (condtitionalTireSizes: string[], summaryTireSizes: [string, string]): boolean => {
+	return summaryTireSizes.some((tireSize: string) => condtitionalTireSizes.some((condtitionalTireSize: string) => condtitionalTireSize === tireSize))
 }
 
 export const isVehicleDetailsContingencyFulfilled = (ctSystemDetail : CTSystemDetail, summary : Partial<Summary>): boolean => {	
-	//@ts-ignore	
-	const [conditionalProperty, conditionalValue] = Object.entries(ctSystemDetail).find(([conditionalKey, value]) => value !== null && conditionalKey !== 'id');
-
-	switch (conditionalProperty) {
-		case "id":
-			return true;
-		case "makeModelYear":
-			return areMakeModelYearsMatched(conditionalValue, { make: summary.make ?? '', model: summary.model ?? '', year: summary.year ?? 0})		
-		default:
-			break;
+	const conditionalProperties = Object.entries(ctSystemDetail).filter(([conditionalKey, value]) => value !== null && conditionalKey !== 'id');
+	const checkConditionalProperties = (conditionalKey: string, conditionalValue: any) => {
+		switch (conditionalKey) {
+			case "companyId":
+				return  (conditionalValue[0] ?? "")  === summary.companyId;
+			case "makeModelYear":
+				return areMakeModelYearsMatched(conditionalValue, { make: summary.make ?? '', model: summary.model ?? '', year: summary.year ?? 0})
+			case "driveType":
+				return conditionalValue.some((driveTypeValue: DriveType) => driveTypeValue === summary.driveType)
+			// The summary milage value must be more than the conditional value
+			case "mileageMinValue":
+				return isMileageValueMatched(conditionalKey, conditionalValue, summary.mileage);
+			case "mileageMaxValue":
+				return isMileageValueMatched(conditionalKey, conditionalValue, summary.mileage);
+			case "isRotational":
+				return (summary.isRotational ?? false) === conditionalValue
+			case "tireSizes":
+				return doTireSizesMatch(conditionalValue, [summary.frontTireSize ?? "", summary.rearTireSize ?? ""]);
+			case "vehiclePowertrain":
+				return conditionalValue.some((powertrainValue: VehiclePowertrain) => powertrainValue === summary.vehiclePowertrain);
+			case "vehicleStatuses":
+				return conditionalValue.some((vehicleStatus: VehicleStatus) => vehicleStatus === summary.vehicleStatus);
+			default:
+				return true;
+		}
 	}
-	
-	
-	return true;
+
+return conditionalProperties.map(([conditionalKey, conditionalValue]: [string, any]) => checkConditionalProperties(conditionalKey, conditionalValue)).every((conditionalBoolean: boolean) => conditionalBoolean === true);
 }
