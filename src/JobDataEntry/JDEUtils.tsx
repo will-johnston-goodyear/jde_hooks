@@ -1,5 +1,5 @@
 import { isEqual } from 'lodash';
-import { CTSystemDetail, DriveType, JDEElementIndexPropertiesEnum, MakeModelYear, Summary, VehiclePowertrain, VehicleStatus } from "./SharedTypes";
+import { CTSystemDetail, DriveType, JDEElementIndexPropertiesEnum, JDEJob, MakeModelYear, Summary, VehiclePowertrain, VehicleStatus } from "./SharedTypes";
 
 /**
  * Accepts a flat JDEElement array and returns a flat array of their JDEElement child
@@ -105,3 +105,5 @@ export const isVehicleDetailsContingencyFulfilled = (ctSystemDetail : CTSystemDe
 
 return conditionalProperties.map(([conditionalKey, conditionalValue]: [string, any]) => checkConditionalProperties(conditionalKey, conditionalValue)).every((conditionalBoolean: boolean) => conditionalBoolean === true);
 }
+
+export const getShownJobs = (jobs: JDEJob[]) : JDEJob[] | [] | void => { };
