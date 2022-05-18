@@ -19,11 +19,9 @@ const useJobDataEntry = (serviceForm : Form) => {
 	const currentStepIndex = useSelector((state: any) => selectCurrentStepIndex(state));
 
 	React.useEffect(() => {
-		if (steps) {
-			const targetStep: Step | undefined = steps.find((step: Step) => step.orderIdx == step.orderIdx);
-			setShownStep(() => targetStep);
-		}
-	},[steps, currentStepIndex])
+		const targetStep: Step | undefined = steps.find((step: Step) => step.orderIdx == currentStepIndex);
+		setShownStep(targetStep);
+	},[currentStepIndex])
 
 	const formMethods = useForm<any>({
 		mode: 'onChange',

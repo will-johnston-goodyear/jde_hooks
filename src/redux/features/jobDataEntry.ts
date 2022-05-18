@@ -49,8 +49,8 @@ export const selectHeaderContent = (state: any): HeaderContent => {
 } 
 
 export const selectCurrentStepIndex = (state: any): number => {
-	return state.currentStepIndex;
+	return state.jobDataEntry.currentStepIndex;
 }
 
-export const { setSummary, incrementCurrentStepIndex } = jobDataEntrySlice.actions;
+export const { setSummary, incrementCurrentStepIndex, decrementCurrentStepIndex} = jobDataEntrySlice.actions;
 export default jobDataEntrySlice.reducer;
