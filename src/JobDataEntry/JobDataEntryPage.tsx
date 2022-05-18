@@ -11,16 +11,13 @@ import { JDEStep } from "./JDEStep/JDEStep";
 import { Step } from "./SharedTypes";
 
 const JobDataEntryPage = (): React.ReactElement => {
-
-	const { formMethods } = useJobDataEntry(serviceForm);
-
-	const { steps } = serviceForm;
-	
+	const { formMethods, shownStep } = useJobDataEntry(serviceForm);
+	console.log(shownStep)
 	return (
 		<FormProvider {...formMethods}>
 			<JDEHeader />
 			<form>
-				{steps.map((step: Step) => <JDEStep step={step} key={`step-${step.id}`}/>)}
+				{shownStep && <JDEStep step={shownStep} key={`step-${shownStep.id}`}/>}
 			</form>
 			<button onClick={() => console.log(formMethods.getValues())}>See Values</button>
 		</FormProvider>

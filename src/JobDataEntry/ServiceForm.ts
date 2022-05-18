@@ -1606,7 +1606,7 @@ export const serviceForm: Form = {
     isRotational: true,
     license: "01100011009",
     make: "Chevrolet",
-    mileage: null,
+    mileage: 200,
     model: "Cobalt",
     oilSpecification: "Nice Oil",
     queueItemId: "f294ac05-6dc6-4f70-98ab-0eb5792dc71c",
