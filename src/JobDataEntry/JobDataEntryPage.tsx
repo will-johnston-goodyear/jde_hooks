@@ -8,6 +8,7 @@ import JDEHeader from "./JDEHeader/JDEHeader";
 
 import { serviceForm } from './ServiceForm';
 import { VehicleDetailsContingentJobServiceForm } from "./MockServiceForms/VehicleDetailsContingentJob_ServiceForm";
+import { QuestionsContingentJobServiceForm } from "./MockServiceForms/QuestionsContingentJob_ServiceForm";
 
 import { JDEStep } from "./JDEStep/JDEStep";
 import { Form } from "./SharedTypes";
@@ -25,11 +26,14 @@ const JobDataEntryPage = (): React.ReactElement => {
 
 	const handleFormSelection = (targetForm: string) => {
 		switch (targetForm) {
-			case "vehicleDetailsContingentTaskServiceForm":
+			case "vehicleDetailsContingentTask":
 				setTargetServiceForm(serviceForm);
 				break;
-			case "vehicleDetailContingentJobServiceForm":
+			case "vehicleDetailContingentJob":
 				setTargetServiceForm(VehicleDetailsContingentJobServiceForm);
+				break;
+			case "questionContingentJob":
+				setTargetServiceForm(QuestionsContingentJobServiceForm);
 				break;
 			default:
 				setTargetServiceForm(serviceForm);
@@ -47,8 +51,9 @@ const JobDataEntryPage = (): React.ReactElement => {
 			{!isLastStep && <button onClick={() => dispatch(incrementCurrentStepIndex())}>Next Step</button>}
 			{!isFirstStep && <button onClick={() => dispatch(decrementCurrentStepIndex())}>Previous Step</button>}
 			<select onChange={(e) => handleFormSelection(e.target.value)}>
-				<option value={"vehicleDetailsContingentTaskServiceForm"}>Conditional Task - Rendered By Vehicle Details - Make Model Year</option>
-				<option value={"vehicleDetailContingentJobServiceForm"}>Condtional Job - Rendered By Vehicle Details - Make Model Year</option>
+				<option value={"vehicleDetailContingentJob"}>Condtional Job - Rendered By Vehicle Details - Make Model Year</option>
+				<option value={"questionContingentJob"}>Conditional Job - Rendered by Questions - Show if All "Yes"</option>
+				<option value={"vehicleDetailsContingentTask"}>Conditional Task - Rendered By Vehicle Details - Make Model Year</option>
 			</select>
 		</FormProvider>
 	)

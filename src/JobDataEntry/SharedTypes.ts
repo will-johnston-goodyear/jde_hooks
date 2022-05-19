@@ -2,7 +2,7 @@ export interface JDEOption {
   id: string;
   isRequired: boolean | null;
   label: string;
-  optionTagLabels?: string[];
+  optionTagLabels?: string[] | null;
   orderIdx: number;
 }
 
@@ -148,9 +148,9 @@ export interface JDEQuestion {
   children: Array<JDEQuestion> | null;
   conditionalQuestionParentId?: string | null;
   alerts: Array<Alert> | null;
-  isRequired?: boolean;
+  isRequired?: boolean | null;
   isBridgit?: boolean;
-  isStandard?: boolean;
+  isStandard?: boolean | null;
   defaultOption: string | null;
   options: JDEOption[] | null;
   orderIdx?: number;
@@ -173,8 +173,8 @@ export interface JDEQuestion {
 
 export interface JobCTQuestion extends JDEQuestion {
   conditionalJobQuestionId: string;
-  jobRenderedByMax: number;
-  jobRenderedByMin: number;
+  jobRenderedByMax: number | null;
+  jobRenderedByMin: number | null;
   jobRenderedByOptionIds: string[];
 }
 
