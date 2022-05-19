@@ -16,7 +16,7 @@ const JobDataEntryPage = (): React.ReactElement => {
 
 	const [targetServiceForm, setTargetServiceForm] = React.useState<Form>(serviceForm);
 
-	const { formMethods, shownStep } = useJobDataEntry(targetServiceForm);
+	const { formMethods, shownStep, shownJobs } = useJobDataEntry(targetServiceForm);
 	const dispatch = useDispatch();
 	const currentStepIndex = useSelector((state: any) => selectCurrentStepIndex(state));
 	
@@ -41,7 +41,7 @@ const JobDataEntryPage = (): React.ReactElement => {
 		<FormProvider {...formMethods}>
 			<JDEHeader />
 			<form>
-				{shownStep && <JDEStep step={shownStep} key={`step-${shownStep.id}`}/>}
+				{shownStep && <JDEStep step={shownStep} key={`step-${shownStep.id}`} jobs={shownJobs} />}
 			</form>
 			<button onClick={() => console.log(formMethods.getValues())}>See Values</button>
 			{!isLastStep && <button onClick={() => dispatch(incrementCurrentStepIndex())}>Next Step</button>}

@@ -106,4 +106,23 @@ export const isVehicleDetailsContingencyFulfilled = (ctSystemDetail : CTSystemDe
 return conditionalProperties.map(([conditionalKey, conditionalValue]: [string, any]) => checkConditionalProperties(conditionalKey, conditionalValue)).every((conditionalBoolean: boolean) => conditionalBoolean === true);
 }
 
-export const getShownJobs = (jobs: JDEJob[]) : JDEJob[] | [] | void => { };
+export const getShownJobs = (jobs: JDEJob[], summary: Partial<Summary>): JDEJob[] | [] => { 
+	
+	const shownJobs = jobs.reduce<JDEJob[]>((accumulatedJobs, currentJob) => {
+		if (currentJob.renderedByQuestions === null && currentJob.renderedByVehicleDetails === null && currentJob.renderedByVehicleDetailsArtificial === null) {
+			return [...accumulatedJobs, currentJob]
+		} else if(currentJob.renderedByVehicleDetails){
+			const isContingencyFulfilled : boolean = currentJob.renderedByVehicleDetails.map((ctSystemDetail: CTSystemDetail) => isVehicleDetailsContingencyFulfilled(ctSystemDetail, summary)).every((contingencyFulfilledStatus: boolean) => contingencyFulfilledStatus === true);
+			
+			if (isContingencyFulfilled) {
+				return [...accumulatedJobs, currentJob]
+			} else {
+				return accumulatedJobs
+			}
+			
+		} else {
+			return accumulatedJobs;
+		}
+	}, [])
+	return shownJobs;
+};
