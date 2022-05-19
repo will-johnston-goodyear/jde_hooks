@@ -1,4 +1,4 @@
-import { getFlatJDEElement, getConditionalElements, isVehicleDetailsContingencyFulfilled, areMakeModelYearsMatched, isMileageValueMatched, doTireSizesMatch } from "./JDEUtils";
+import { getFlatJDEElement, getConditionalElements, isVehicleDetailsContingencyFulfilled, areMakeModelYearsMatched, isMileageValueMatched, doTireSizesMatch, getShownJobs } from "./JDEUtils";
 
 import { serviceForm }  from './ServiceForm';
 import { VehicleDetailsContingentJobServiceForm } from './MockServiceForms/VehicleDetailsContingentJob_ServiceForm'
@@ -660,7 +660,69 @@ describe('isVehicleDetailsContingencyFulfilled tests', () => {
 })
 
 describe('getShownJobs tests', () => {
-	it('Should return all non-contingent jobs', () => {
-		console.log(VehicleDetailsContingentJobServiceForm);
+	const nonContingentJobs: JDEJob[] = VehicleDetailsContingentJobServiceForm.steps[1].jobs;
+	const contingentJobs: JDEJob[] = VehicleDetailsContingentJobServiceForm.steps[2].jobs;
+	const doesNotFulfillContingencySummary = VehicleDetailsContingentJobServiceForm.summary;
+	const fulfillsContingencySummary = {
+		...doesNotFulfillContingencySummary,
+		year: 2022,
+		make: "Chevrolet",
+		model: "Corvette",
+	}
+
+	it('Should return all jobs when none are contingent', () => {
+		const jobsToTest: JDEJob[] = [...nonContingentJobs, ...nonContingentJobs];
+		expect(getShownJobs(jobsToTest, doesNotFulfillContingencySummary)).toEqual(jobsToTest);
+	});
+
+	it('Should return all non-contingent jobs and fulfilled jobs', () => {
+		expect(getShownJobs(contingentJobs, fulfillsContingencySummary)).toEqual(contingentJobs);
+	});
+
+	it('Should return all non-contingent jobs and no unfilfilled contingent jobs', () => {
+		expect(getShownJobs([...contingentJobs, ...nonContingentJobs], doesNotFulfillContingencySummary)).toEqual(nonContingentJobs);
+	});
+
+	it('Should return all non-contingent jobs and all fulfilled contingent jobs that have multiple fulfilled contingencies', () => {
+
+		const [ctSystemDetail] = contingentJobs[0].renderedByVehicleDetails ?? [];
+		
+		const updatedCtSystemDetail = {
+			...ctSystemDetail,
+			isRotational: true,
+		} as CTSystemDetail;
+
+		const updatedJob: JDEJob = {
+			...contingentJobs[0],
+			renderedByVehicleDetails: [updatedCtSystemDetail]
+		};
+
+		const multiContingencyJobs = [
+			updatedJob,
+			...nonContingentJobs,
+		]
+		
+		expect(getShownJobs(multiContingencyJobs, fulfillsContingencySummary)).toEqual(multiContingencyJobs);
+	})
+
+	it('Should return all non-contingent jobs and no unfulfilled contingent jobs that have one unfulfilled contingency', () => {
+
+		const [ctSystemDetail] = contingentJobs[0].renderedByVehicleDetails ?? [];
+		
+		const updatedCtSystemDetail = {
+			...ctSystemDetail,
+			isRotational: false,
+		} as CTSystemDetail;
+
+		const updatedJob: JDEJob = {
+			...contingentJobs[0],
+			renderedByVehicleDetails: [updatedCtSystemDetail]
+		};
+
+		const multiContingencyJobs = [
+			updatedJob,
+			...nonContingentJobs,
+		]
+		expect(getShownJobs(multiContingencyJobs, fulfillsContingencySummary)).toEqual(nonContingentJobs);
 	})
 })
