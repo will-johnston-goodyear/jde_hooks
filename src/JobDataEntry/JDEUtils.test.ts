@@ -1,7 +1,8 @@
-import { getFlatJDEElement, getConditionalElements, isVehicleDetailsContingencyFulfilled, areMakeModelYearsMatched, isMileageValueMatched, doTireSizesMatch, getShownJobs } from "./JDEUtils";
+import { getFlatJDEElement, getConditionalElements, isVehicleDetailsContingencyFulfilled, areMakeModelYearsMatched, isMileageValueMatched, doTireSizesMatch, getShownJobs, isRenderedByQuestionsContingencyFulfilled, isRenderedByOptionIdFulfilled } from "./JDEUtils";
 
 import { serviceForm }  from './ServiceForm';
 import { VehicleDetailsContingentJobServiceForm } from './MockServiceForms/VehicleDetailsContingentJob_ServiceForm'
+import { QuestionsContingentJobServiceForm } from './MockServiceForms/QuestionsContingentJob_ServiceForm'
 import { Step, JDEJob, JobCTQuestion, JDEElementIndexPropertiesEnum, JDETask, JDEQuestion, JDEOption, CTSystemDetail, ArtificialCTSystemDetail, ConditionalJobActionEnum, DriveTypeEnum, MakeModelYear, Summary, VehiclePowertrainEnum, VehicleStatusEnum } from "./SharedTypes";
 
 describe('getFlatJDEElement tests', () => {
@@ -725,4 +726,73 @@ describe('getShownJobs tests', () => {
 		]
 		expect(getShownJobs(multiContingencyJobs, fulfillsContingencySummary)).toEqual(nonContingentJobs);
 	})
+})
+
+describe("isRenderedByOptionIdsFulfilled tests", () => {
+		
+		it("Should return true when the answer is included in JobCTQuestion.jobRenderedByOptionIds", () => {
+			const [jobCTQuestion]: JobCTQuestion[] = QuestionsContingentJobServiceForm.steps[2].jobs[0]?.renderedByQuestions ?? [];
+			
+			const correctOptionId = "bfe4cc5b-c304-4453-a7f6-6d54c5b83964";
+			
+			expect(isRenderedByOptionIdFulfilled(jobCTQuestion, correctOptionId)).toBe(true);
+			
+		});
+
+		it("Should return false when the answer is not included in JobCTQuestion.jobRenderedByOptionsIds", () => {
+			const [jobCTQuestion]: JobCTQuestion[] = QuestionsContingentJobServiceForm.steps[2].jobs[0]?.renderedByQuestions ?? [];
+			
+			const incorrectOptionId = "d0d92aa1-2781-4d7b-9cd8-136721263781";
+			
+			expect(isRenderedByOptionIdFulfilled(jobCTQuestion, incorrectOptionId)).toBe(false);
+		})
+	});
+	
+describe("isRenderedByQuestionsContingencyFulfilled tests", () => {
+	
+	const jobCTQuestions : JobCTQuestion[] = QuestionsContingentJobServiceForm.steps[2].jobs[0].renderedByQuestions ?? []; 
+
+	it('Should return true when conditional task action equals "SHOW_ALL" and all questions are answered correctly', () => {
+		
+		//{ questionId: answerString }
+		const ctQuestionAnswers = [
+			"bfe4cc5b-c304-4453-a7f6-6d54c5b83964", // optionId == "Yes"
+			"83743d93-3b7c-4e15-b617-f18e57c21a84", // optionId == "Yes"
+		]
+			
+		expect(isRenderedByQuestionsContingencyFulfilled(jobCTQuestions, ctQuestionAnswers, ConditionalJobActionEnum.SHOW_ALL)).toEqual(true);
+	});
+
+		it('Should return false when conditional task action equals "SHOW_ALL" and not all questions are answered correctly', () => {
+		
+		//{ questionId: answerString }
+		const ctQuestionAnswers = [
+			"9e86650a-423e-4a32-ba7c-ecfcd928149c", // optionId == "Yes"
+			"54494914-5e29-4887-ab9b-785380e74f33", // optionId == "Yes"
+		]
+			
+		expect(isRenderedByQuestionsContingencyFulfilled(jobCTQuestions, ctQuestionAnswers, ConditionalJobActionEnum.SHOW_ALL)).toEqual(false);
+	});
+
+	it('Should return true when conditional task action equals "SHOW_ONE" and at least one question is answered correctly', () => {
+		
+		//{ questionId: answerString }
+		const ctQuestionAnswers = [
+			"bfe4cc5b-c304-4453-a7f6-6d54c5b83964", // optionId == "Yes"
+			"",
+		]
+			
+		expect(isRenderedByQuestionsContingencyFulfilled(jobCTQuestions, ctQuestionAnswers, ConditionalJobActionEnum.SHOW_ONE)).toEqual(true);
+	});
+
+		it('Should return false when conditional task action equals "SHOW_ONE" and all questions are answered incorrectly', () => {
+		
+		//{ questionId: answerString }
+		const ctQuestionAnswers = [
+			"",
+			"", 
+		]
+			
+		expect(isRenderedByQuestionsContingencyFulfilled(jobCTQuestions, ctQuestionAnswers, ConditionalJobActionEnum.SHOW_ONE)).toEqual(false);
+	});
 })
