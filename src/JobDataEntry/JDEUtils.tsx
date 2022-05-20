@@ -1,5 +1,6 @@
-import { isEqual } from 'lodash';
-import { CTSystemDetail, DriveType, JDEElementIndexPropertiesEnum, JDEJob, MakeModelYear, Summary, VehiclePowertrain, VehicleStatus } from "./SharedTypes";
+import { current } from '@reduxjs/toolkit';
+import { isEqual, isEmpty } from 'lodash';
+import { ConditionalJobAction, ConditionalJobActionEnum, CTSystemDetail, DriveType, JDEElementIndexPropertiesEnum, JDEJob, JobCTQuestion, MakeModelYear, Summary, VehiclePowertrain, VehicleStatus } from "./SharedTypes";
 
 /**
  * Accepts a flat JDEElement array and returns a flat array of their JDEElement child
@@ -106,12 +107,48 @@ export const isVehicleDetailsContingencyFulfilled = (ctSystemDetail : CTSystemDe
 return conditionalProperties.map(([conditionalKey, conditionalValue]: [string, any]) => checkConditionalProperties(conditionalKey, conditionalValue)).every((conditionalBoolean: boolean) => conditionalBoolean === true);
 }
 
+/**
+ * Checks that the option ID that the user selected is included in the `jobCTQuestion.
+ * jobRenderedByOptionIds` array, a collection of answers that fulfill the `jobRenderedByOptionIds`
+ *  contingency.  
+ * 
+ * @param {JobCTQuestion} jobCTQuestion 
+ * @param jobCTAnswer 
+ * @returns { boolean } 
+ */
+export const isRenderedByOptionIdFulfilled = (jobCTQuestion: JobCTQuestion, jobCTAnswer: string) : boolean => jobCTQuestion.jobRenderedByOptionIds.includes(jobCTAnswer);
+ 
+export const isRenderedByQuestionsContingencyFulfilled = (jobCTQuestions: JobCTQuestion[], ctQuestionAnswers : string[], conditionalJobAction : ConditionalJobAction) : boolean => {
+	const contingenciesArray: boolean[] | void[] = jobCTQuestions.map((jobCTQuestion: JobCTQuestion, index) => {
+		if (jobCTQuestion.jobRenderedByOptionIds !== null) {
+			return isRenderedByOptionIdFulfilled(jobCTQuestion, ctQuestionAnswers[index]);
+		} else if (jobCTQuestion.jobRenderedByMax !== null || jobCTQuestion.jobRenderedByMin !== null) {
+			//TODO: Update to derive value
+			return true;
+		} else {
+			// Fall-through case is always `true`
+			return true;
+		}
+})
+	
+	if (conditionalJobAction === ConditionalJobActionEnum.HIDE_ALL || conditionalJobAction === ConditionalJobActionEnum.SHOW_ALL) {
+		return contingenciesArray.every(contingencyStatus => contingencyStatus === true)
+	} else {
+		return contingenciesArray.some(contingencyStatus => contingencyStatus === true)
+	}
+}
+
+/**
+ * Returns all non-contingent jobs, all `job.renderedByQuestions` jobs, and all jobs with fulfilled contingencies
+ * 
+ * @param {JDEJob[]} jobs 
+ * @param {Partial<Summary>} summary 
+ * @returns { JDEJob[] | []}
+ */
 export const getShownJobs = (jobs: JDEJob[], summary: Partial<Summary>): JDEJob[] | [] => { 
 	
-	const shownJobs = jobs.reduce<JDEJob[]>((accumulatedJobs, currentJob) => {
-		if (currentJob.renderedByQuestions === null && currentJob.renderedByVehicleDetails === null && currentJob.renderedByVehicleDetailsArtificial === null) {
-			return [...accumulatedJobs, currentJob]
-		} else if(currentJob.renderedByVehicleDetails){
+	const shownJobs = jobs.reduce<JDEJob[]>((accumulatedJobs, currentJob) => { 
+		if(currentJob.renderedByVehicleDetails) {
 			const isContingencyFulfilled : boolean = currentJob.renderedByVehicleDetails.map((ctSystemDetail: CTSystemDetail) => isVehicleDetailsContingencyFulfilled(ctSystemDetail, summary)).every((contingencyFulfilledStatus: boolean) => contingencyFulfilledStatus === true);
 			
 			if (isContingencyFulfilled) {
@@ -120,8 +157,14 @@ export const getShownJobs = (jobs: JDEJob[], summary: Partial<Summary>): JDEJob[
 				return accumulatedJobs
 			}
 			
-		} else {
-			return accumulatedJobs;
+		} 
+		else if (currentJob.renderedByVehicleDetailsArtificial) {
+			//Currently no renderedByVehicleDetailsArtificial jobs will be shown
+			return accumulatedJobs
+		}
+		else {
+			//Returns all non-contingent jobs and all job.renderedByQuestions jobs. renderedByQuestion jobs are always rendered, but their content is rendered conditionally at the `Job` level
+			return [...accumulatedJobs, currentJob]
 		}
 	}, [])
 	return shownJobs;

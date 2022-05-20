@@ -3,11 +3,11 @@ import * as React from 'react';
 
 // Local Imports
 import {QuestionWrapper, QuestionContainer, Label, LabelSeperator} from './JDEQuestion.style';
-import { InputTypesEnum, JDEQuestion as JDEQuestionType } from '../SharedTypes';
+import { InputTypesEnum, JDEQuestion as JDEQuestionType, JobCTQuestion } from '../SharedTypes';
 import Input from '../Input/Input'
 
 interface Props {
-	question: JDEQuestionType;
+	question: JDEQuestionType | JobCTQuestion;
 }
 
 // eslint-disable-next-line no-empty-pattern
